@@ -51,6 +51,30 @@ class DataStore {
 		}
 	}
 	
+	void addProduct(String name, String version, String desc) {
+		sql.execute("INSERT INTO product (name, version, description) VALUES ($name, $version, $desc)")
+	}
+	
+	void addTask(String name, String desc) {
+		sql.execute("INSERT INTO task (name, description) VALUES ($name, $desc)")
+	}
+	
+	Map getProducts() {
+		def map = [:]
+		sql.eachRow("SELECT id, name FROM product") {
+			map[it['id']] = it['name']
+		}
+		map
+	}
+	
+	Map getTasks() {
+		def map = [:]
+		sql.eachRow("SELECT id, name FROM task") {
+			map[it['id']] = it['name']
+		}
+		map
+	}
+	
 	Map getLatestComment(long bldId) {
 		def qry = "SELECT author, comment, updated FROM notes WHERE build_id = $bldId ORDER BY updated DESC"
 		if(log.isTraceEnabled()) {
@@ -140,6 +164,27 @@ class DataStore {
 				throw new RuntimeException('DBError writing setting value')
 		}
 	}
+	
+	void link(long prodId, long[] taskIds) {
+		def delQry = "DELETE FROM does_task WHERE prod_id = $prodId"
+		if(log.isTraceEnabled()) {
+			def params = sql.getParameters(delQry)
+			def qryStr = sql.asSql(delQry, params)
+			log.trace "$qryStr $params"
+		}
+		sql.withTransaction {
+			sql.execute delQry
+			taskIds.each {
+				def insQry = "INSERT INTO does_task (prod_id, task_id, ordering) VALUES ($prodId, $it, 1)"
+				if(log.isTraceEnabled()) {
+					def params = sql.getParameters(insQry)
+					def qryStr = sql.asSql(insQry, params)
+					log.trace "$qryStr $params"
+				}
+				sql.execute insQry
+			}
+		}
+	}
 		
 	private void setDbVersion() {
 		def qry = "INSERT INTO settings (name, value) VALUES ('dbVersion', '0')"
@@ -208,12 +253,12 @@ class DataStore {
 			sql.execute '''
 				CREATE TABLE notes (
 					id BIGINT NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1) PRIMARY KEY,
-					build_id BIGINT NOT NULL,
+					c_task_id BIGINT NOT NULL,
 					author VARCHAR(128) NOT NULL,
 					comment LONG VARCHAR NOT NULL,
 					created TIMESTAMP NOT NULL,
 					updated TIMESTAMP NOT NULL,
-					CONSTRAINT notes_build_id_ref FOREIGN KEY (build_id) REFERENCES prod_build(id) ON DELETE CASCADE
+					CONSTRAINT notes_c_task_id_ref FOREIGN KEY (c_task_id) REFERENCES completed_task(id) ON DELETE CASCADE
 				)
 			'''
 			

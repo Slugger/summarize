@@ -50,6 +50,34 @@ class DataStore {
 				throw e
 		}
 	}
+
+	void updateBuild(long bldId, long taskLinkId, String state, String desc, String url, Date start = null, Date finish = null, String author = null)	{
+		def now = new Date()
+		sql.withTransaction {
+			sql.execute("DELETE FROM completed_task WHERE build_id = $bldId AND does_task_id = $taskLinkId")
+			sql.execute("INSERT INTO completed_task (build_id, does_task_id, start, finish, updated, updated_by, url, brief_desc, state) VALUES ($bldId, $taskLinkId, ${start ?: now}, $finish, $now, ${author ?: 'automation'}, $url, $desc, $state)")
+		}
+	}
+	
+	Long getTaskLinkId(long taskId, long prodId) {
+		sql.firstRow("SELECT id FROM does_task WHERE task_id = $taskId AND prod_id = $prodId")?.id
+	}
+	
+	long registerBuild(long prodId, String build) {
+		def row = sql.firstRow("SELECT id FROM prod_build WHERE prod_id = $prodId AND build = $build") 
+		if(!row)
+			sql.executeInsert("INSERT INTO prod_build (prod_id, build) VALUES ($prodId, $build)")[0][0]
+		else
+			row.id
+	}
+	
+	Long getProductId(String name, String version) {
+		sql.firstRow("SELECT id FROM product WHERE name = $name AND version = $version")?.id
+	}
+	
+	Long getTaskId(String name) {
+		sql.firstRow("SELECT id FROM task WHERE name = $name")?.id
+	}
 	
 	void addProduct(String name, String version, String desc) {
 		sql.execute("INSERT INTO product (name, version, description) VALUES ($name, $version, $desc)")

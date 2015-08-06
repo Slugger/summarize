@@ -18,7 +18,7 @@ import groovy.xml.MarkupBuilder
 import com.github.slugger.summarize.DataStore
 
 def data = DataStore.instance
-def tasks = data.getTasks('SIQ4L', '2.0.0.1')
+def tasks = data.getTasks('SIQ4L', '2.0.0')
 def html = new MarkupBuilder(out)
 html.html {
 	head {
@@ -29,7 +29,7 @@ html.html {
 					tasks.each { th(it) }
 					th('Latest Comment')
 				}
-				data.getBuilds('SIQ4L', '2.0.0.1').each { bld, cTasks ->
+				data.getBuilds('SIQ4L', '2.0.0').each { bld, cTasks ->
 					def bldId = null
 					tr {
 						td(bld)
@@ -52,4 +52,4 @@ html.html {
 		}
 	}
 }
-out << "<!--\n${data.getBuilds('SIQ4L', '2.0.0.1')}\n-->"
+out << "<!--\n${data.getBuilds('SIQ4L', '2.0.0')}\n-->"

@@ -27,7 +27,6 @@ html.html {
 				tr {
 					th('Build')
 					tasks.each { th(it) }
-					th('Latest Comment')
 				}
 				data.getBuilds('SIQ4L', '2.0.0').each { bld, cTasks ->
 					def bldId = null
@@ -38,14 +37,13 @@ html.html {
 							td {
 								if(result) {
 									div("$result.stateDesc ($result.state)")
-									div(result.finish.format('M/d HH:mm'))
+									def date = result.finish ?: result.start
+									div(date.format('M/d HH:mm'))
 									bldId = result.buildId
 								} else
 									span('N/A')
 							}
 						}
-						def note = bldId != null ? data.getLatestComment(bldId) : null
-						td(note ? "[By $note.author on $note.date] $note.note" : '[No comments]')
 					}
 				}
 			}

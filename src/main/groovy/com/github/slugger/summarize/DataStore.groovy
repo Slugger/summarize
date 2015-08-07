@@ -228,7 +228,8 @@ class DataStore {
 					id BIGINT NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1) PRIMARY KEY,
 					name VARCHAR(128) NOT NULL,
 					version VARCHAR(128) NOT NULL,
-					description VARCHAR(255)
+					description VARCHAR(255),
+					CONSTRAINT unique_name_ver UNIQUE (name, version)
 				)
 			'''
 			
@@ -237,14 +238,15 @@ class DataStore {
 					id BIGINT NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1) PRIMARY KEY,
 					prod_id BIGINT NOT NULL,
 					build VARCHAR(64) NOT NULL,
-					CONSTRAINT prod_build_prod_id_ref FOREIGN KEY (prod_id) REFERENCES product(id) ON DELETE CASCADE
+					CONSTRAINT prod_build_prod_id_ref FOREIGN KEY (prod_id) REFERENCES product(id) ON DELETE CASCADE,
+					CONSTRAINT unique_prod_bld UNIQUE (prod_id, build)
 				)
 			'''
 			
 			sql.execute '''
 				CREATE TABLE task (
 					id BIGINT NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1) PRIMARY KEY,
-					name VARCHAR(64) NOT NULL,
+					name VARCHAR(64) NOT NULL CONSTRAINT unique_name UNIQUE,
 					description VARCHAR(255)
 				)
 			'''
@@ -256,7 +258,8 @@ class DataStore {
 					prod_id BIGINT NOT NULL,
 					ordering INT NOT NULL,
 					CONSTRAINT does_task_task_id_ref FOREIGN KEY (task_id) REFERENCES task(id) ON DELETE CASCADE,
-					CONSTRAINT does_task_prod_id_ref FOREIGN KEY (prod_id) REFERENCES product(id) ON DELETE CASCADE
+					CONSTRAINT does_task_prod_id_ref FOREIGN KEY (prod_id) REFERENCES product(id) ON DELETE CASCADE,
+					CONSTRAINT unique_task_prod UNIQUE (task_id, prod_id)
 				)
 			'''
 			
@@ -273,11 +276,12 @@ class DataStore {
 					url LONG VARCHAR,
 					brief_desc VARCHAR(32) NOT NULL,
 					CONSTRAINT completed_task_does_task_id_ref FOREIGN KEY (does_task_id) REFERENCES does_task(id) ON DELETE CASCADE,
-					CONSTRAINT completed_task_build_id_ref FOREIGN KEY (build_id) REFERENCES prod_build(id) ON DELETE CASCADE
+					CONSTRAINT completed_task_build_id_ref FOREIGN KEY (build_id) REFERENCES prod_build(id) ON DELETE CASCADE,
+					CONSTRAINT unique_does_bld UNIQUE (does_task_id, build_id),
+					CONSTRAINT valid_states CHECK (state IN ('RUN', 'PASS', 'FAIL', 'WARN'))
 				)
 			'''
-			// TODO: Add constraint for state values
-			
+						
 			sql.execute '''
 				CREATE TABLE notes (
 					id BIGINT NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1) PRIMARY KEY,
@@ -307,6 +311,7 @@ class DataStore {
 							LEFT OUTER JOIN app.completed_task AS ct ON (ct.build_id = pb.id)
 							LEFT OUTER JOIN app.does_task AS dt ON (dt.prod_id = p.id AND dt.id = ct.does_task_id)
 							LEFT OUTER JOIN app.task AS t ON (t.id = dt.id)
+						WHERE ct.id IS NOT NULL
 			'''
 			
 			sql.execute '''

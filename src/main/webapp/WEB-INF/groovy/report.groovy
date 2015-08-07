@@ -13,10 +13,14 @@
 	See the License for the specific language governing permissions and
 	limitations under the License.
 */
+import groovy.json.JsonSlurper
+
 import com.github.slugger.summarize.DataStore
 
+def json = new JsonSlurper().parse(request.inputStream)
+
 def ds = DataStore.instance
-def prodId = ds.getProductId('SIQ4L', '2.0.0')
-def bldId = ds.registerBuild(prodId, 'MASTER+1500')
-def taskId = ds.getTaskId('upgrade')
-ds.updateBuild(bldId, ds.getTaskLinkId(taskId, prodId), 'PASS', 'Build completed', 'http://jenkins', null, null, 'ddb')
+def prodId = ds.getProductId(json.product, '2.0.0')
+def bldId = ds.registerBuild(prodId, json.build)
+def taskId = ds.getTaskId(json.task)
+ds.updateBuild(bldId, ds.getTaskLinkId(taskId, prodId), json.state.toUpperCase(), json.status, json.url, null, null, json.author ?: 'unknown')

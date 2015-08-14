@@ -1,0 +1,31 @@
+th {
+  text-align: center;
+}
+
+td {
+  border: 1px dotted #ddd;
+}
+
+a.fa {
+  text-decoration: none;
+  color: inherit;
+}
+
+.summarize-state-fail {
+  background-color: #FFB2B2;
+}
+
+.summarize-state-warn {
+  background-color: #FFFF99;
+}
+
+.summarize-state-pass {
+  background-color: #A7E9A7;
+}
+
+.summarize-state-run {
+  background-color: #A4B5DA;
+}
+
+.summarize-state-none {
+}

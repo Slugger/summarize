@@ -13,21 +13,28 @@
 	See the License for the specific language governing permissions and
 	limitations under the License.
 */
+package com.github.slugger.summarize.data
+
+import groovy.sql.GroovyResultSet
+import groovy.sql.GroovyRowResult
+import groovy.transform.EqualsAndHashCode
+import groovy.transform.ToString
+
 import com.github.slugger.summarize.DataStore
 
-switch(params?.task.toLowerCase()) {
-	case 'add':
-		DataStore.instance.addTask(params.name, params.desc); break
-	case 'link':
-		DataStore.instance.link(params.prod.toLong(), request.getParameterValues('tasks').collect { it.toLong() } as long[]); break
-	case 'reorder':
-		def keys = params.keySet().findAll { it.startsWith('lt_') }
-		keys.each {
-			def id = it.split('_', 2)[1].toLong()
-			def lt = DataStore.instance.getLinkedTaskById(id)
-			lt.order = params[it].toInteger()
-			DataStore.instance.updateLinkedTask(lt)
-		}
-		break
-	default: throw new RuntimeException("Unsupported task: $params.task")
+@ToString
+@EqualsAndHashCode(includes='id')
+class Build {
+	final long id
+	final Product product
+	final String build
+	
+	private Build(def input) {
+		id = input.id
+		build = input.build
+		product = DataStore.instance.getProductById(input.prod_id)
+	}
+	
+	Build(GroovyRowResult input) { this((Object)input) }
+	Build(GroovyResultSet input) { this((Object)input) }
 }

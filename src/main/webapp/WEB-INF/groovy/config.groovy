@@ -63,21 +63,37 @@ html.html {
 				label('for': 'prod', 'Product:')
 				select(name: 'prod') {
 					option(value: '', '-- Select --')
-					DataStore.instance.products.each { k, v ->
-						option(value: k, v)
+					DataStore.instance.products.each {
+						option(value: it.id, "$it.name/$it.version")
 					}
 				}
 			}
 			div {
 				label('for': 'tasks', 'Tasks:')
 				select(name: 'tasks', multiple: 'multiple') {
-					DataStore.instance.tasks.each { k, v ->
-						option(value: k, v)
+					DataStore.instance.tasks.each {
+						option(value: it.id, it.name)
 					}
 				}
 			}
 			div {
 				input(type: 'submit', name: 'task', value: 'Link')
+			}
+		}
+		
+		h1('Order Tasks')
+		DataStore.instance.products.each { prod ->
+			h2("$prod.name/$prod.version")
+			form(method: 'POST', action: 'config/task.groovy') {
+				DataStore.instance.getLinkedTasksForProduct(prod).each { lt ->
+					div {
+						label('for': "lt_$lt.id", lt.task.name)
+						input(type: 'text', size: '3', name: "lt_$lt.id", value: lt.order)
+					}
+				}
+				div {
+					input(type: 'submit', name: 'task', value: 'Reorder')
+				}
 			}
 		}
 	}

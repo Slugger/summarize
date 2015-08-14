@@ -17,7 +17,7 @@
 set -e
 rm -rf build
 cd ..
-gradle clean war
+./gradlew clean war
 cd docker
 mkdir -p build/static build/webapps
 cp -r ../jquery build/static/.

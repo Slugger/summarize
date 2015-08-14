@@ -19,5 +19,5 @@ RUN mkdir -p /var/lib/summarize && mkdir -p /var/lib/jetty/static
 COPY static /var/lib/jetty/static
 COPY webapps /var/lib/jetty/webapps
 RUN chown -R jetty.jetty /var/lib/jetty/webapps && chown -R jetty.jetty /var/lib/jetty/static && chown -R jetty.jetty /var/lib/summarize
-EXPOSE 8080
+EXPOSE 8080 8000
 CMD /usr/local/jetty/bin/jetty.sh run

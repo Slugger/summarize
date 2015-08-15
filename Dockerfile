@@ -19,6 +19,10 @@ RUN mkdir -p /var/lib/summarize && mkdir -p /var/lib/jetty/static && mkdir -p /v
 COPY jquery /var/lib/jetty/static/jquery
 COPY kickstart /var/lib/jetty/static
 COPY apps build/libs/summarize.war /var/lib/jetty/webapps/
+COPY conf/etc/* /etc/
+COPY conf/default/* /etc/default/
+COPY scripts/* /usr/local/jetty/bin/
+RUN chmod 755 /usr/local/jetty/bin/*
 RUN chown -R jetty.jetty /var/lib/jetty/webapps && chown -R jetty.jetty /var/lib/jetty/static && chown -R jetty.jetty /var/lib/summarize && chown -R jetty.jetty /var/log/summarize
 EXPOSE 8080 8000
 CMD /usr/local/jetty/bin/jetty.sh run

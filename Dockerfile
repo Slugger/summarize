@@ -16,8 +16,9 @@
 FROM jetty:9-jre7
 MAINTAINER derek@battams.ca
 RUN mkdir -p /var/lib/summarize && mkdir -p /var/lib/jetty/static
-COPY static /var/lib/jetty/static
-COPY webapps /var/lib/jetty/webapps
+COPY jquery /var/lib/jetty/static/jquery
+COPY kickstart /var/lib/jetty/static
+COPY apps build/libs/summarize.war /var/lib/jetty/webapps/
 RUN chown -R jetty.jetty /var/lib/jetty/webapps && chown -R jetty.jetty /var/lib/jetty/static && chown -R jetty.jetty /var/lib/summarize
 EXPOSE 8080 8000
 CMD /usr/local/jetty/bin/jetty.sh run

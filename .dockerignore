@@ -1,0 +1,6 @@
+src
+build/*
+.gradle
+.git
+.gitignore
+!build/libs/summarize.war

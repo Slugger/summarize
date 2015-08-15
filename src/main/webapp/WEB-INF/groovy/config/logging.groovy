@@ -13,21 +13,16 @@
 	See the License for the specific language governing permissions and
 	limitations under the License.
 */
+import org.apache.log4j.Level
+import org.apache.log4j.Logger
+
 import com.github.slugger.summarize.DataStore
+import com.github.slugger.summarize.LogSettings
 
 switch(params?.task.toLowerCase()) {
-	case 'add':
-		DataStore.instance.addTask(params.name, params.desc); break
-	case 'link':
-		DataStore.instance.link(params.prod.toLong(), request.getParameterValues('tasks').collect { it.toLong() } as long[]); break
-	case 'reorder':
-		def keys = params.keySet().findAll { it.startsWith('lt_') }
-		keys.each {
-			def id = it.split('_', 2)[1].toLong()
-			def lt = DataStore.instance.getLinkedTaskById(id)
-			lt.order = params[it].toInteger()
-			DataStore.instance.updateLinkedTask(lt)
-		}
+	case 'update':
+		DataStore.instance.setSetting(LogSettings.LOG_SETTING_VAR, params.level)
+		Logger.rootLogger.level = Level.toLevel(params.level, Level.toLevel(LogSettings.LOG_SETTING_DEFAULT, Level.WARN))
 		break
 	default: throw new RuntimeException("Unsupported task: $params.task")
 }

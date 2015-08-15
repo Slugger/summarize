@@ -20,18 +20,35 @@ import groovy.util.logging.Log4j
 import javax.servlet.ServletContextEvent
 import javax.servlet.ServletContextListener
 
+import org.apache.log4j.Level
+import org.apache.log4j.Logger
+
 @Log4j
 class InitDbListener implements ServletContextListener {
 
 	static private initDone = false
+	static private shutdownDone = false
 	
 	static private synchronized initDb() {
 		if(!initDone) {
 			try {
 				DataStore.instance
+				Logger.rootLogger.level = Level.toLevel(DataStore.instance.getSetting(LogSettings.LOG_SETTING_VAR, LogSettings.LOG_SETTING_DEFAULT))
 				initDone = true
 			} catch(Throwable t) {
 				log.fatal('DB init error!', t)
+			}
+		}
+	}
+	
+	static private synchronized shutdownDb() {
+		if(!shutdownDone) {
+			try {
+				DataStore.instance.shutdown()
+			} catch(Throwable t) {
+				log.error('DB shutdown failed!', t)
+			} finally {
+				shutdownDone = true			
 			}
 		}
 	}
@@ -40,5 +57,5 @@ class InitDbListener implements ServletContextListener {
 	void contextInitialized(ServletContextEvent sce) { initDb() }
 
 	@Override
-	void contextDestroyed(ServletContextEvent sce) {}
+	void contextDestroyed(ServletContextEvent sce) { shutdownDb() }
 }

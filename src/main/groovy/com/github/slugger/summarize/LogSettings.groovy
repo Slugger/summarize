@@ -13,11 +13,9 @@
 	See the License for the specific language governing permissions and
 	limitations under the License.
 */
-import com.github.slugger.summarize.DataStore
+package com.github.slugger.summarize
 
-switch(params?.task.toLowerCase()) {
-	case 'add':
-		DataStore.instance.addProduct(params.name, params.version, params.desc); break
-	default: throw new RuntimeException("Unsupported task: $params.task")
+class LogSettings {
+	static final String LOG_SETTING_VAR = 'logLevel'
+	static final String LOG_SETTING_DEFAULT = 'WARN'
 }
-response.sendRedirect('../config.groovy')

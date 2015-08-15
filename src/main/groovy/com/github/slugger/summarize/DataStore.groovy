@@ -18,6 +18,7 @@ package com.github.slugger.summarize
 import groovy.sql.Sql
 import groovy.util.logging.Log4j
 
+import java.sql.DriverManager
 import java.sql.SQLException
 import java.sql.SQLIntegrityConstraintViolationException
 
@@ -59,6 +60,18 @@ class DataStore {
 		}
 	}
 
+	void shutdown() {
+		try {
+			sql.close()
+			DriverManager.getConnection("jdbc:derby:/var/lib/summarize/db;shutdown=true");
+		} catch(SQLException e) {
+			if(e.SQLState != '08006')
+				throw e
+			else
+				log.info 'Database shutdown successfully!'
+		}
+	}
+	
 	LinkedTask[] getLinkedTasksForProduct(Product p) {
 		def tasks = []
 		sql.eachRow("SELECT * FROM does_task WHERE prod_id = $p.id") {

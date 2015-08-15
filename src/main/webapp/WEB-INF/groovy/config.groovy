@@ -15,6 +15,8 @@
 */
 import groovy.xml.MarkupBuilder
 
+import org.apache.log4j.Logger
+
 import com.github.slugger.summarize.DataStore
 
 def html = new MarkupBuilder(out)
@@ -23,6 +25,25 @@ html.html {
 		title('Summarize Configuration')
 	}
 	body {
+		h1('Logging')
+		form(method: 'POST', action: 'config/logging.groovy') {
+			div {
+				label('for': 'level', 'Level:')
+				def currentLevel = Logger.rootLogger.level.toString()
+				select(name: 'level') {
+					['TRACE', 'DEBUG', 'INFO', 'WARN', 'ERROR', 'FATAL'].each {
+						def map = [value: it]
+						if(it == currentLevel)
+							map['selected'] = 'selected'
+						option(map, it)
+					}
+				}
+			}
+			div {
+				input(type: 'submit', name: 'task', value: 'Update')
+			}
+		}
+		
 		h1('Add Product')
 		form(method: 'POST', action: 'config/prod.groovy') {
 			div {

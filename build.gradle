@@ -74,7 +74,7 @@ task setupDockerEnv(type: Copy) {
 
 task mkDockerImg(type: Exec) {
 	dependsOn setupDockerEnv, cpWarToDocker
-	workingDir = new File(project.projectDir, 'docker')
+	workingDir = new File(project.buildDir, 'docker')
 	commandLine 'docker', 'build', '-t', 'slugger/summarize', '.'
 	doFirst {
 		if(!System.getProperty('os.name').toLowerCase().contains('linux'))

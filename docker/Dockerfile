@@ -18,7 +18,7 @@ MAINTAINER derek@battams.ca
 RUN mkdir -p /var/lib/summarize && mkdir -p /var/lib/jetty/static && mkdir -p /var/log/summarize
 COPY jquery /var/lib/jetty/static/jquery
 COPY kickstart /var/lib/jetty/static
-COPY apps build/libs/summarize.war /var/lib/jetty/webapps/
+COPY apps war/*.war /var/lib/jetty/webapps/
 COPY conf/etc/* /etc/
 COPY conf/default/* /etc/default/
 COPY scripts/* /usr/local/jetty/bin/

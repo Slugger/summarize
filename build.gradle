@@ -57,9 +57,29 @@ dependencies {
 	//testCompile 'org.powermock:powermock-api-mockito:1.5.4'
 }
 
-task mkDockerImg(type: Exec) {
+task cpWarToDocker(type: Copy) {
+	def outDir = new File(project.buildDir, 'docker/war')
 	dependsOn war
-	commandLine 'docker', 'build', '-t', 'slugger/summarize', '.'	
+	from(new File(project.buildDir, 'libs').absolutePath) {
+		include war.archiveName
+	}
+	into(outDir.absolutePath)
+	outputs.files(new File(outDir, war.archiveName))
+}
+
+task setupDockerEnv(type: Copy) {
+	from(new File(project.projectDir, 'docker'))
+	into(new File(project.buildDir, 'docker'))
+}
+
+task mkDockerImg(type: Exec) {
+	dependsOn setupDockerEnv, cpWarToDocker
+	workingDir = new File(project.projectDir, 'docker')
+	commandLine 'docker', 'build', '-t', 'slugger/summarize', '.'
+	doFirst {
+		if(!System.getProperty('os.name').toLowerCase().contains('linux'))
+			throw new UnsupportedOperationException('Can only build docker images on Linux!')
+	}
 }
 
 compileJava.dependsOn versionFile

@@ -32,13 +32,17 @@ html.html {
 		link(rel: 'stylesheet', href: '/static/css/summarize.css')
 	}
 	body {
-		div('class': 'col_12', style: 'padding: 75px;') {
+		div('class': 'col_4') {
 			div {
-				p('Adding comment for:')
+				p('Add comment for:')
 				ul {
 					li("Product: $ct.linkedTask.product.name/$ct.linkedTask.product.version")
 					li("Build: $ct.build.build")
 					li("Task: $ct.linkedTask.task.name")
+					li {
+						span("State: ")
+						span('class': "summarize-state-${ct.state.toLowerCase()}", ct.state)
+					}
 				}
 			}
 			div {
@@ -55,8 +59,16 @@ html.html {
 					input(type: 'submit', name: 'submit', value: 'Add')
 				}
 			}
+		}
+		div('class': 'col_8') {
 			div {
-				h3('Previous Comments')
+				h3('Notes')
+				div {
+					a('class': 'button small', href: 'status.groovy') {
+						i('class': 'fa fa-arrow-left', '')
+						span(style: 'padding-left: 3px;', 'Return to Status')
+					}
+				}
 				data.getComments(ct).each { cmnt ->
 					div("$cmnt.author wrote on $cmnt.created")
 					div {

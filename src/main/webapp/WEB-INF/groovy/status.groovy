@@ -46,6 +46,11 @@ html.html {
 			}
 			if(prod) {
 				h3("$prod.name/$prod.version")
+				div {
+					small {
+						i("All dates are ${TimeZone.default.displayName}")
+					}
+				}
 				table('class': 'sortable') {
 					thead {
 						tr {

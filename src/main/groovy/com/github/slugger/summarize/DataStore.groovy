@@ -263,27 +263,13 @@ class DataStore {
 		comments
 	}
 	
-	void addComment(long completedTaskId, String author, String comment) {
+	void addComment(long completedTaskId, String author, String comment, String updatedBy = null) {
 		def now = new Date()
-		def qry = "INSERT INTO notes (c_task_id, author, comment, created, updated) VALUES ($completedTaskId, $author, $comment, $now, $now)"
+		def qry = "INSERT INTO notes (c_task_id, author, comment, created, updated, updated_by) VALUES ($completedTaskId, $author, $comment, $now, $now, ${updatedBy ?: (author ?: 'automation')})"
 		log.trace qry
 		sql.execute qry
 	}
-	
-//	Task getTaskByTaskLinkId(long id) {
-//		def qry = "SELECT * FROM task WHERE id = (SELECT task_id FROM does_task WHERE id = $id)"
-//		log.trace qry
-//		def row = sql.firstRow(qry)
-//		row ? new Task(row) : null
-//	}
-//	
-//	Product getProductByTaskLinkId(long id) {
-//		def qry = "SELECT * FROM product WHERE id = (SELECT prod_id FROM does_task WHERE id = $id)"
-//		log.trace qry
-//		def row = sql.firstRow(qry)
-//		row ? new Product(row) : null
-//	}
-	
+		
 	LinkedTask getLinkedTaskById(long id) {
 		def qry = "SELECT * FROM does_task WHERE id = $id"
 		log.trace qry
@@ -291,12 +277,6 @@ class DataStore {
 		row ? new LinkedTask(row) : null
 	}
 	
-//	Integer getTaskOrderByTaskLinkId(long id) {
-//		def qry = "SELECT ordering FROM does_task WHERE id = $id"
-//		log.trace qry
-//		sql.firstRow(qry)?.ordering
-//	}
-		
 	private void setDbVersion() {
 		def qry = "INSERT INTO settings (name, value) VALUES ('dbVersion', '0')"
 		if(log.isTraceEnabled())

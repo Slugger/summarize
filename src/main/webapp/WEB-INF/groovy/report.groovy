@@ -13,28 +13,38 @@
 	See the License for the specific language governing permissions and
 	limitations under the License.
 */
+import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 
 import com.github.slugger.summarize.DataStore
 import com.github.slugger.summarize.data.CompletedTask
 
-def json = new JsonSlurper().parse(request.inputStream)
 
-def ds = DataStore.instance
-def prod = ds.getProduct(json.product, json.version)
-def task = ds.getTaskByName(json.task)
-def cTasks = ds.getBuildsForProduct(prod)
-def bld = cTasks.keySet().find { it.build == json.build } ?: ds.registerBuild(prod.id, json.build)
-def cTask = cTasks[bld]?.find { it.linkedTask.task.name == json.task }
-if(cTask) {
-	cTask.start = new Date()
-	cTask.finish = json.finish ? new Date(json.finish.toLong()) : null
-	cTask.updatedAt = cTask.start
-	cTask.updatedBy = json.author ?: 'automation'
-	cTask.state = json.state
-	cTask.url = json.url
-	cTask.description = json.status
-} else {
-	cTask = new CompletedTask(ds.getLinkedTasksForProduct(prod).find { it.task.name == task.name }, bld, json.status, json.state, json.url, json.author, new Date(), null)
+try {
+	def json = new JsonSlurper().parse(request.inputStream)
+
+	def ds = DataStore.instance
+	def prod = ds.getProduct(json.product, json.version)
+	def task = ds.getTaskByName(json.task)
+	def cTasks = ds.getBuildsForProduct(prod)
+	def bld = cTasks.keySet().find { it.build == json.build } ?: ds.registerBuild(prod.id, json.build)
+	def cTask = cTasks[bld]?.find { it.linkedTask.task.name == json.task }
+	if(cTask) {
+		cTask.start = new Date()
+		cTask.finish = json.finish ? new Date(json.finish.toLong()) : null
+		cTask.updatedAt = cTask.start
+		cTask.updatedBy = json.author ?: 'automation'
+		cTask.state = json.state
+		cTask.url = json.url
+		cTask.description = json.status
+	} else {
+		cTask = new CompletedTask(ds.getLinkedTasksForProduct(prod).find { it.task.name == task.name }, bld, json.status, json.state, json.url, json.author, new Date(), null)
+	}
+	ds.updateBuild(cTask)
+	response.contentType = 'application/json'
+	out << JsonOutput.toJson([result: 'OK'])
+} catch(Throwable t) {
+	def w = new CharArrayWriter()
+	t.printStackTrace(new PrintWriter(w))
+	out << JsonOutput.toJson([result: 'ERROR', error: w.toString()])
 }
-ds.updateBuild(cTask)

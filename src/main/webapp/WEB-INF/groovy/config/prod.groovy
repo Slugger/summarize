@@ -18,6 +18,8 @@ import com.github.slugger.summarize.DataStore
 switch(params?.task.toLowerCase()) {
 	case 'add':
 		DataStore.instance.addProduct(params.name, params.version, params.desc); break
+	case 'set':
+		DataStore.instance.setSetting('defaultView', params.prod); break
 	default: throw new RuntimeException("Unsupported task: $params.task")
 }
 response.sendRedirect('../config.groovy')

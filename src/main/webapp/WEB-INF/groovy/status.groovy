@@ -17,8 +17,8 @@ import groovy.xml.MarkupBuilder
 
 import com.github.slugger.summarize.DataStore
 
-def verInput = params.prod?.split('\\/', 2)
 def data = DataStore.instance
+def verInput = params.prod?.split('\\/', 2) ?: data.getSetting('defaultView')?.split('\\/', 2)
 def prod = verInput ? data.products.find { it.name == verInput[0] && it.version == verInput[1] } : data.products[0]
 def tasks = data.getTasks(prod)
 def html = new MarkupBuilder(out)

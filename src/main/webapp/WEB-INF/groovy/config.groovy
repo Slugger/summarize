@@ -117,5 +117,25 @@ html.html {
 				}
 			}
 		}
+		
+		h1('Default View')
+		form(method: 'POST', action: 'config/prod.groovy') {
+			div {
+				label('for': 'prod', 'Product:')
+				select(name: 'prod') {
+					option(value: '', '-- Select --')
+					def curDefault = DataStore.instance.getSetting('defaultView')
+					DataStore.instance.products.each {
+						def map = [value: "$it.name/$it.version"]
+						if(curDefault == "$it.name/$it.version")
+							map[selected: 'selected']
+						option(map, "$it.name/$it.version")
+					}
+				}
+			}
+			div {
+				input(type: 'submit', name: 'task', value: 'Set')
+			}
+		}
 	}
 }

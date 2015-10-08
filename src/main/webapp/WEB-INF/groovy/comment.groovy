@@ -64,7 +64,8 @@ html.html {
 			div {
 				h3('Notes')
 				div {
-					a('class': 'button small', href: 'status.groovy') {
+					def targetProd = URLEncoder.encode("$ct.linkedTask.product.name/$ct.linkedTask.product.version", 'UTF-8')
+					a('class': 'button small', href: "status.groovy?prod=$targetProd") {
 						i('class': 'fa fa-arrow-left', '')
 						span(style: 'padding-left: 3px;', 'Return to Status')
 					}

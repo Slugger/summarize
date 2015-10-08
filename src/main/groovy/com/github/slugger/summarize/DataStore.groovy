@@ -185,7 +185,7 @@ class DataStore {
 			}
 			tasks << getCompletedTaskById(it.ct_id)
 		}
-		builds.sort { -1L * b.value.min { it.start }.start.time	}
+		builds.sort { -1L * it.value.min { it.start }.start.time }
 	}
 	
 	CompletedTask getCompletedTaskById(long id) {

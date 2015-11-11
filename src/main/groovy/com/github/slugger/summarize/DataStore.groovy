@@ -183,7 +183,9 @@ class DataStore {
 				tasks = []
 				builds[bld] = tasks
 			}
-			tasks << getCompletedTaskById(it.ct_id)
+			def ct = getCompletedTaskById(it.ct_id)
+			if(ct)
+				tasks << ct
 		}
 		builds.sort { -1L * it.value.min { it.start }.start.time }
 	}

@@ -68,7 +68,15 @@ html.html {
 									def state = result?.state
 									td(value: state ?: '-1', 'class': "summarize-state-${state?.toLowerCase() ?: 'none'}") {
 										if(result) {
-											div('class': 'center', result.description)
+											def info = result.description.split('\n')
+											for(int i = 0; i < info.size(); ++i) {
+												div('class': 'center') {
+													if(!i)
+														b(info[i])
+													else
+														span(info[i])
+												}
+											}
 											def date = result.finish ?: result.start
 											div('class': 'center', 'style': 'font-size: 10px;', date.format('M/d HH:mm'))
 											bldId = result.build.id

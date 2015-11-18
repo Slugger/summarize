@@ -128,7 +128,7 @@ html.html {
 					DataStore.instance.products.each {
 						def map = [value: "$it.name/$it.version"]
 						if(curDefault == "$it.name/$it.version")
-							map[selected: 'selected']
+							map['selected'] = 'selected'
 						option(map, "$it.name/$it.version")
 					}
 				}
